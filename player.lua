@@ -50,17 +50,11 @@ function player:on_collide_x(dir)
 end
 
 function player:on_collide_y(dir)
-    if dir < 0 and input_jump and self:corner_correct(0, -g_dir, 2, input_x) then
+    if dir * g_dir < 0 and input_jump and self:corner_correct(0, -g_dir, 2, input_x) then
         return true
     end
 
     return object.on_collide_y(self, dir)
-end
-
-function player:bottom_y()
-    return 
-        g_dir == 1 and self.y + self.hit_y + self.hit_h - 1 or
-        self.y + self.hit_y
 end
 
 function player:jump()
@@ -75,8 +69,7 @@ function player:jump()
 end
 
 function player:bounce_check(obj)
-    -- fix...
-    return self.speed_y * g_dir >= 0 and 
+    return self.speed_y * g_dir >= 0 and
         ((g_dir == 1 and self.y - self.speed_y < obj.y + obj.speed_y - 7) or
         (g_dir == -1 and self.y - self.speed_y > obj.y + obj.speed_y + 7))
 end
@@ -229,6 +222,10 @@ function player:update()
             self.t_bounce = 0
             o.player = self
             self:move_y(o.y - 8 * g_dir - self.y)
+        elseif o.base == smasher and self:overlaps(o) then
+            -- smasher
+            self:die()
+            return
         end
     end
 
