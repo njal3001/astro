@@ -33,7 +33,6 @@ function restart_level()
     camera_target_y = 0
     g_dir = 1
     objects = {}
-    solids = {}
 
     for i = 0, level.width - 1 do
         for j = 0, level.height - 1 do

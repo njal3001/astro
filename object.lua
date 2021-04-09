@@ -1,5 +1,4 @@
 objects = {}
-solids = {}
 types = {}
 lookup = {}
 
@@ -99,22 +98,22 @@ function object:corner_correct(dir_x, dir_y, side_dist, only_sign)
     return false
 end
 
-function object:correction_check(offset_x, offset_y) 
+function object:correction_check(ox, oy) 
     return true
 end
 
-function object:overlaps(other, offset_x, offset_y)
+function object:overlaps(other, ox, oy)
     if self == other then return false end
-    local ox = offset_x or 0
-    local oy = offset_y or 0
+    local ox = ox or 0
+    local oy = oy or 0
 
     return overlaps(self.x + self.hit_x + ox, self.y + self.hit_y + oy, self.hit_w, self.hit_h,
              other.x + other.hit_x, other.y + other.hit_y, other.hit_w, other.hit_h)
 end
 
-function object:check_solid(offset_x, offset_y)
-    local ox = offset_x or 0
-    local oy = offset_y or 0
+function object:check_solid(ox, oy)
+    local ox = ox or 0
+    local oy = oy or 0
 
     return overlaps_solid(self.x + self.hit_x + ox, self.y + self.hit_y + oy, self.hit_w, self.hit_h)
 end
@@ -136,8 +135,8 @@ function overlaps_solid(x, y, w, h)
         end
     end
 
-    for s in all(solids) do
-        if overlaps(x, y, w, h, s.x + s.hit_x, s.y + s.hit_y, s.hit_w, s.hit_h) then
+    for o in all(objects) do
+        if o.solid and overlaps(x, y, w, h, o.x + o.hit_x, o.y + o.hit_y, o.hit_w, o.hit_h) then
             return true
         end
     end
@@ -161,8 +160,7 @@ function object:new(x, y)
     obj.y = y
     setmetatable(obj, lookup)
     add(objects, obj)
-    if (obj.vel) add(objects_with.vel, obj)
-    if (obj.timer) add(objects_with.timer, obj)
+
     obj:init()
     return obj
 end
