@@ -99,7 +99,7 @@ smasher = new_type(44)
 function smasher:update()
     -- gravity
     if not self:check_solid(0, g_dir) then
-        self.speed_y = approach(self.speed_y, g_dir * 3.1, 0.12)
+        self.speed_y = approach(self.speed_y, g_dir * 5.1, 0.12)
     end
 
     -- apply

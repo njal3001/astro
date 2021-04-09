@@ -8,11 +8,11 @@ levels = {
 }
 
 function level_clamp_x(x)
-    return mid(level.x, x, (level.width - 1) * 8)
+    return mid(level.x, x, level.x + level.width - 1)
 end
 
 function level_clamp_y(y)
-    return mid(level.y, y, (level.height - 1) * 8)
+    return mid(level.y, y, level.y + level.height - 1)
 end
 
 -- temporary

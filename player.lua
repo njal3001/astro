@@ -69,7 +69,7 @@ function player:jump()
 end
 
 function player:bounce_check(obj)
-    return self.speed_y * g_dir >= 0 and
+    return self.speed_y * g_dir >= 0 and abs(obj.speed_y) < 1 and 
         ((g_dir == 1 and self.y - self.speed_y < obj.y + obj.speed_y - 7) or
         (g_dir == -1 and self.y - self.speed_y > obj.y + obj.speed_y + 7))
 end
@@ -100,6 +100,7 @@ function player:leave_springboard()
     end 
 
     self.springboard = nil
+    self.can_switch = true
 end
 
 function player:switch()
