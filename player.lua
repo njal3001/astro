@@ -74,33 +74,17 @@ function player:bounce_check(obj)
         (g_dir == -1 and self.y - self.speed_y > obj.y + obj.speed_y + 7))
 end
 
-function player:spring(failed)
-    if failed then
-        self.speed_y = -4.1 * g_dir
-    else
-        self.speed_y = -7.9 * g_dir
-        self.jumping = true
-    end
-    
+function player:spring()
+    self.jumping = true
     self.t_jump_grace = 0
-    self.remainder_y = 0
-
+    self.springboard:spring(self)
     self:leave_springboard()
 end
 
 function player:leave_springboard()
     self.state = 0
-    self.springboard.player = nil
     self.springboard.spr = 42
-
-    for o in all(objects) do
-        if o.base == crumble and not o.breaking and self.springboard:overlaps(o, 0, g_dir * 4) then
-            o.breaking = true
-        end
-    end 
-
     self.springboard = nil
-    self.can_switch = true
 end
 
 function player:switch()
@@ -143,13 +127,13 @@ function player:update()
 
     self.speed_x = approach(self.speed_x, 2.1 * input_x , accel)
 
+    -- facing 
+    if input_x != 0 then
+        self.facing = input_x
+    end
+
     if self.state == 0 then
         -- normal state
-
-        -- facing 
-        if input_x != 0 then
-            self.facing = input_x
-        end
 
         -- gravity
         if not on_ground then
@@ -173,34 +157,28 @@ function player:update()
                 self:jump()
             end
         end
-
-        -- switch gravity
-        if self.can_switch and input_switch_pressed > 0 then
-            self:switch()
-        end
-
     elseif self.state == 1 then
-        -- springboard bounce state 
-        if not self:overlaps(self.springboard, 0, g_dir) then
+         -- springboard bounce state 
+
+         if not self:overlaps(self.springboard, 0, g_dir) then
             self:leave_springboard()
         else
             self.t_bounce += 1
-
-            if self.t_bounce > 8 then
-                self:spring(true)
-            else
-                if self.t_bounce < 4 then
-                    local at_y = approach(self.y, self.springboard.y + 4 * g_dir, 1.8)
-                    self:move_y(at_y - self.y)
-                    if self.t_bounce == 2 then 
-                        self.springboard.spr = 43
-                        self.springboard.flip_y = g_dir == -1
-                    end
-                else
-                    if (input_jump) self:spring(false)
+            if self.t_bounce < 6 then
+                local at_y = approach(self.y, self.springboard.y + 6 * g_dir, 1.1)
+                self:move_y(at_y - self.y)
+                if self.t_bounce == 4 then 
+                    self.springboard.spr = 43
                 end
+            elseif self.t_bounce == 8 then
+                self:spring()
             end
         end
+    end
+
+    -- switch gravity
+    if self.can_switch and input_switch_pressed > 0 then
+        self:switch()
     end
 
     -- apply 
@@ -214,19 +192,29 @@ function player:update()
             if self:overlaps(o, 0, g_dir) then
                 o.breaking = true
             end
-        elseif o.base == springboard and self.state != 1 and self:overlaps(o) and self:bounce_check(o) then
+        elseif o.base == springboard and self:overlaps(o) and self.state != 1 and self:bounce_check(o) then
             -- springboard
-            self.state = 1
             self.speed_x = 0
-            object.on_collide_y(self)
+            self.speed_y = 0
             self.springboard = o
             self.t_bounce = 0
-            o.player = self
+            self.state = 1
             self:move_y(o.y - 8 * g_dir - self.y)
+            self.can_switch = true
         elseif o.base == smasher and self:overlaps(o) then
             -- smasher
             self:die()
             return
+        elseif o.base == mover then
+            -- mover
+            if self:overlaps(o, 0, g_dir) and on_ground then
+                o.state = 1
+                self.mover = o
+                o.player = self
+            elseif self.mover == 0 then
+                self.mover.player = nil
+                self.mover = nil
+            end
         end
     end
 

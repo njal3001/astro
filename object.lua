@@ -18,6 +18,7 @@ object.hit_h = 8
 object.facing = 1
 object.freeze = 0
 object.col_solid = true
+object.collideable = true
 
 function object:move_x(amount)
     self.remainder_x += amount
@@ -102,31 +103,27 @@ function object:correction_check(ox, oy)
     return true
 end
 
-function object:overlaps(other, ox, oy)
-    if self == other then return false end
+function object:overlaps(o, ox, oy)
+    if self == o or not o.collideable then return false end
     local ox = ox or 0
     local oy = oy or 0
-
-    return overlaps(self.x + self.hit_x + ox, self.y + self.hit_y + oy, self.hit_w, self.hit_h,
-             other.x + other.hit_x, other.y + other.hit_y, other.hit_w, other.hit_h)
+    
+    return 
+        self.x + self.hit_x + ox < o.x + o.hit_x + o.hit_w and
+        self.y + self.hit_y + oy < o.y + o.hit_y + o.hit_h and
+        self.x + self.hit_x + ox + self.hit_w > o.x + o.hit_x and
+        self.y + self.hit_y + oy + self.hit_h > o.y + o.hit_y 
 end
 
 function object:check_solid(ox, oy)
     local ox = ox or 0
     local oy = oy or 0
 
-    return overlaps_solid(self.x + self.hit_x + ox, self.y + self.hit_y + oy, self.hit_w, self.hit_h)
-end
+    local x = self.x + self.hit_x + ox
+    local y = self.y + self.hit_y + oy
+    local w = self.hit_w
+    local h = self.hit_h
 
-function overlaps(x0, y0, w0, h0, x1, y1, w1, h1)
-    return 
-        x0 < x1 + w1 and
-        y0 < y1 + h1 and
-        x0 + w0 > x1 and
-        y0 + h0 > y1
-end
-
-function overlaps_solid(x, y, w, h)
     for i = level_clamp_x(flr(x / 8)), level_clamp_x(flr((x + w - 1) / 8)) do
         for j = level_clamp_y(flr(y / 8)), level_clamp_y(flr((y + h - 1) / 8)) do
             if fget(mget(i, j), 0) then
@@ -136,12 +133,14 @@ function overlaps_solid(x, y, w, h)
     end
 
     for o in all(objects) do
-        if o.solid and overlaps(x, y, w, h, o.x + o.hit_x, o.y + o.hit_y, o.hit_w, o.hit_h) then
+        if o.collideable and o.solid and 
+                (not o.solid_check or o:solid_check(self, ox, oy)) and self:overlaps(o, ox, oy) then
             return true
         end
     end
-end
 
+    return false
+end
 
 function object:init() end
 
