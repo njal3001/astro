@@ -38,7 +38,15 @@ function restart_level()
         for j = 0, level.height - 1 do
             local t = types[mget(i, j)]
             if t then
-                t:new(i * 8, j * 8)
+                local new = t:new(i * 8, j * 8)
+                if t == smasher then
+                    local off = 1
+                    while mget(i + off, j) != 46 do
+                        off += 1 
+                    end
+                    new.width = 1 + off
+                    new.hit_w = 8 * new.width
+                end
             end
         end
     end

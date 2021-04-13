@@ -207,11 +207,11 @@ function player:update()
             return
         elseif o.base == mover then
             -- mover
-            if self:overlaps(o, 0, g_dir) and on_ground then
+            if self:overlaps(o, 0, g_dir) then
                 o.state = 1
                 self.mover = o
                 o.player = self
-            elseif self.mover == 0 then
+            elseif self.mover == o then
                 self.mover.player = nil
                 self.mover = nil
             end

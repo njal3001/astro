@@ -121,6 +121,14 @@ function smasher:update()
     (self.y < level.y * 8 - 32 and g_dir == -1)
 end
 
+function smasher:draw()
+    spr(44, self.x, self.y, 1, 1)
+    for i = 1, self.width - 2 do
+        spr(45, self.x + i * 8, self.y, 1, 1)
+    end
+    spr(46, self.x + (self.width - 1) * 8, self.y, 1, 1)
+end
+
 mover = new_type(58)
 mover.solid = true
 mover.state = 0
