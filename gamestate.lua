@@ -21,8 +21,15 @@ function update_camera_target(px, py)
     camera_target_y = 0
 end
 
+function snap_camera()
+    camera_x = camera_target_x
+    camera_y = camera_target_y 
+    camera(camera_x, camera_y)
+end
+
 function goto_level(index)
     level = levels[index]
+    level_checkpoint = nil
     restart_level()
 end
 
@@ -37,7 +44,7 @@ function restart_level()
     for i = 0, level.width - 1 do
         for j = 0, level.height - 1 do
             local t = types[mget(i, j)]
-            if t then
+            if t and (not level_checkpoint or t != player) then
                 local new = t:new(i * 8, j * 8)
                 if t == smasher then
                     local off = 1

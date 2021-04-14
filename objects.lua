@@ -165,3 +165,10 @@ function mover:draw()
     spr(self.spr, self.x, self.y, 3, 1)
 end
 
+checkpoint = new_type(61)
+
+function checkpoint:init()
+    if level_checkpoint == self.id then
+        player:new(self.x, self.y)
+    end
+end

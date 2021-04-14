@@ -97,6 +97,12 @@ function player:die()
     restart_level()
 end
 
+function player:init()
+    --camera
+    update_camera_target(self.x, self.y)
+    snap_camera()
+end
+
 --[[
     player states:
         0 - normal
@@ -215,6 +221,9 @@ function player:update()
                 self.mover.player = nil
                 self.mover = nil
             end
+        elseif o.base == checkpoint and o.id != level_checkpoint and self:overlaps(o) then
+            -- checkpoint
+            level_checkpoint = o.id
         end
     end
 

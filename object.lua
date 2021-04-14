@@ -2,7 +2,7 @@ objects = {}
 types = {}
 lookup = {}
 
-function lookup:__index(i) 
+function lookup:__index(i)
     return self.base[i]
 end
 
@@ -32,7 +32,7 @@ function object:move_x(amount)
                 return true
             end
             self.x += step
-            pixel_amount -= step 
+            pixel_amount -= step
         end
     else
         self.x += pixel_amount
@@ -76,8 +76,8 @@ function object:corner_correct(dir_x, dir_y, side_dist, only_sign)
     only_sign = only_sign or 0
     if dir_x != 0 then
         for i = 1, side_dist do
-            for s = 1, -1, -2 do 
-                if s != -only_sign and not self:check_solid(dir_x, i * s) and 
+            for s = 1, -1, -2 do
+                if s != -only_sign and not self:check_solid(dir_x, i * s) and
                         self:correction_check(dir_x, i * s) then
                     self.y += i * s
                     return true
@@ -87,7 +87,7 @@ function object:corner_correct(dir_x, dir_y, side_dist, only_sign)
     elseif dir_y != 0 then
         for i = 1, side_dist do
             for s = 1, -1, -2 do
-                if s != -only_sign and not self:check_solid(i * s, dir_y) and 
+                if s != -only_sign and not self:check_solid(i * s, dir_y) and
                         self:correction_check(i * s, dir_y) then
                     self.x += i * s
                     return true
@@ -99,7 +99,7 @@ function object:corner_correct(dir_x, dir_y, side_dist, only_sign)
     return false
 end
 
-function object:correction_check(ox, oy) 
+function object:correction_check(ox, oy)
     return true
 end
 
@@ -107,12 +107,12 @@ function object:overlaps(o, ox, oy)
     if self == o or not o.collideable then return false end
     local ox = ox or 0
     local oy = oy or 0
-    
-    return 
+
+    return
         self.x + self.hit_x + ox < o.x + o.hit_x + o.hit_w and
         self.y + self.hit_y + oy < o.y + o.hit_y + o.hit_h and
         self.x + self.hit_x + ox + self.hit_w > o.x + o.hit_x and
-        self.y + self.hit_y + oy + self.hit_h > o.y + o.hit_y 
+        self.y + self.hit_y + oy + self.hit_h > o.y + o.hit_y
 end
 
 function object:check_solid(ox, oy)
@@ -133,7 +133,7 @@ function object:check_solid(ox, oy)
     end
 
     for o in all(objects) do
-        if o.collideable and o.solid and 
+        if o.collideable and o.solid and
                 (not o.solid_check or o:solid_check(self, ox, oy)) and self:overlaps(o, ox, oy) then
             return true
         end
@@ -152,11 +152,16 @@ function object:draw()
     end
 end
 
+function id(tx, ty)
+    return tx + 128 * ty
+end
+
 function object:new(x, y)
     local obj = {}
     obj.base = self
     obj.x = x
     obj.y = y
+    obj.id = id(flr(x / 8), flr(y / 8))
     setmetatable(obj, lookup)
     add(objects, obj)
 
@@ -170,7 +175,7 @@ function new_type(spr, base)
     obj.base = base or object
     setmetatable(obj, lookup)
     if spr then
-        types[spr] = obj 
+        types[spr] = obj
     end
     return obj
 end
