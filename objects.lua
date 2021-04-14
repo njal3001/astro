@@ -108,17 +108,19 @@ end
 smasher = new_type(44)
 
 function smasher:update()
-    -- gravity
-    if not self:check_solid(0, g_dir) then
-        self.speed_y = approach(self.speed_y, g_dir * 5.1, 0.12)
+    if self.x + 8 * self.width >= camera_x and self.x <= camera_x + 127 then
+        -- gravity
+        if not self:check_solid(0, g_dir) then
+            self.speed_y = approach(self.speed_y, g_dir * 5.1, 0.12)
+        end
+
+        -- apply
+        self:move_y(self.speed_y)
+
+        self.destroyed = 
+        (self.y > (level.height + level.y) * 8 + 24 and g_dir == 1) or 
+        (self.y < level.y * 8 - 32 and g_dir == -1)
     end
-
-    -- apply
-    self:move_y(self.speed_y)
-
-    self.destroyed = 
-    (self.y > (level.height + level.y) * 8 + 24 and g_dir == 1) or 
-    (self.y < level.y * 8 - 32 and g_dir == -1)
 end
 
 function smasher:draw()
