@@ -1,4 +1,8 @@
 player = new_type(1)
+player.hit_x = 1
+player.hit_w = 5
+player.hit_h = 6
+player.hit_y = 2
 player.t_jump_grace = 0
 player.t_var_jump = 0
 player.jumping = false
@@ -66,6 +70,7 @@ function player:jump()
     self.remainder_x = 0
     self.t_jump_grace = 0
     self:move_y(self.jump_grace_y - self.y)
+    sfx(8)
 end
 
 function player:bounce_check(obj)
@@ -90,10 +95,13 @@ end
 function player:switch()
     consume_switch_press()
     g_dir *= -1
+    self.hit_y = max(0, g_dir * 2)
     self.can_switch = false
+    sfx(9)
 end
 
 function player:die()
+    sfx(12)
     restart_level()
 end
 
@@ -197,6 +205,7 @@ function player:update()
             -- crumble
             if self:overlaps(o, 0, g_dir) then
                 o.breaking = true
+                sfx(10)
             end
         elseif o.base == springboard and self:overlaps(o) and self.state != 1 and self:bounce_check(o) then
             -- springboard
@@ -224,6 +233,7 @@ function player:update()
         elseif o.base == checkpoint and o.id != level_checkpoint and self:overlaps(o) then
             -- checkpoint
             level_checkpoint = o.id
+            sfx(11)
         end
     end
 
@@ -245,9 +255,33 @@ function player:update()
 
     self.was_on_ground = on_ground
          
-    --camera
+    -- camera
     update_camera_target(self.x, self.y)
     camera_x = approach(camera_x, camera_target_x, 5)
     camera_y = approach(camera_y, camera_target_y, 5)
     camera(camera_x, camera_y)
+
+    -- animation
+    if not on_ground then
+        self.spr = 2
+    elseif input_x != 0 then
+        self.spr += 0.25
+        if self.spr >= 3 then
+            self.spr = 1
+        end
+    else
+        self.spr = 1
+    end 
+end
+
+function player:draw()
+    --[[
+    if not self.can_switch then
+        pal(1, 2)
+        pal(12, 8)
+    end
+    ]]
+    spr(self.spr, self.x, self.y, 1, 1, self.facing != 1, g_dir != 1)
+    --pal(1, 1)
+    --pal(12, 12)
 end
