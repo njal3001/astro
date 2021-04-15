@@ -102,7 +102,7 @@ end
 
 function player:die()
     sfx(12)
-    restart_level()
+    level_load = 30
 end
 
 function player:init()
@@ -115,6 +115,7 @@ end
     player states:
         0 - normal
         1 - springboard bounce
+        2 - finished
 ]]
 
 function player:update()
@@ -188,6 +189,13 @@ function player:update()
                 self:spring()
             end
         end
+    elseif self.state == 2 then
+        self.delay -= 1
+        if self.delay == 0 then
+            goto_level(level_index + 1)
+            sfx(14)
+        end
+        return
     end
 
     -- switch gravity
@@ -242,15 +250,16 @@ function player:update()
             (self.y + self.hit_y + self.hit_h - 1 + 16 < level.y * 8 and g_dir == -1) or
                 self:hazard_check() then
         self:die()
+        return
     end
 
     -- bounds
     if self.x + self.hit_x < 0 then
         self.x = self.hit_x
         object.on_collide_x(self)
-    elseif self.x + self.hit_x + self.hit_w - 1 > level.width * 8 then
-        self.x = level.width * 8 - (self.hit_x + self.hit_w - 1)
-        object.on_collide_x(self)
+    elseif self.x + 1 > level.width * 8 then
+        self.state = 2
+        self.delay = 5
     end
 
     self.was_on_ground = on_ground
@@ -275,13 +284,5 @@ function player:update()
 end
 
 function player:draw()
-    --[[
-    if not self.can_switch then
-        pal(1, 2)
-        pal(12, 8)
-    end
-    ]]
     spr(self.spr, self.x, self.y, 1, 1, self.facing != 1, g_dir != 1)
-    --pal(1, 1)
-    --pal(12, 12)
 end

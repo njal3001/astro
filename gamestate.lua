@@ -4,6 +4,12 @@ levels = {
         y = 0,
         width = 128,
         height = 16
+    },
+    {
+        x = 0, 
+        y = 16,
+        width = 128,
+        height = 16
     }
 }
 
@@ -18,7 +24,7 @@ end
 -- temporary
 function update_camera_target(px, py)
     camera_target_x = max(min(128 * 7, px - 56))
-    camera_target_y = 0
+    camera_target_y = level.y * 8
 end
 
 function snap_camera()
@@ -28,11 +34,14 @@ function snap_camera()
 end
 
 function goto_level(index)
+    level_index = index
     level = levels[index]
     level_checkpoint = nil
-    create_stars()
-    restart_level()
+    c_create_stars = cocreate(create_stars)
+    level_load = 30
 end
+
+c_create_stars = nil
 
 function create_stars()
     stars = {}
@@ -40,32 +49,36 @@ function create_stars()
     add(stars, create_star())
 
     for i = 0, 198 do
-        local samples = {}
-        for j = 0, 15 do
-            add(samples, create_star())
-        end
-        local max_sdist
+        local max_sdist = 0
         local max_sample
-        for star in all(stars) do
-            for sample in all(samples) do
+        for j = 0, 9 do
+            local sample = create_star()
+            local min_sdist = 32767
+            for star in all(stars) do
                 local dx = abs(star.x - sample.x)
                 local dy = abs(star.y - sample.y)
                 local sdist = dx^2 + dy^2
-                if not max_sdist or sdist > max_sdist then
-                    max_sdist = sdist
-                    max_sample = sample
+                if sdist > 0 and sdist < min_sdist then
+                    min_sdist = sdist
                 end
             end
+            if min_sdist > max_sdist then
+                max_sdist = min_sdist
+                max_sample = sample
+            end
+
         end
+
+        if (max_sample) add(stars, max_sample)
         
-        add(stars, max_sample)
+        if (i % 10 == 0) yield()
     end
 end
 
 function create_star()
     return {
-        x = rnd() * 1023,
-        y = rnd() * 127,
+        x = level.x * 8 + rnd() * 1023,
+        y = level.y * 8 + rnd() * 127,
         r = rnd(1.3),
         f = flr(rnd() * 340) + 30,
         o = flr(rnd() * 60)
@@ -81,8 +94,8 @@ function restart_level()
     g_dir = 1
     objects = {}
 
-    for i = 0, level.width - 1 do
-        for j = 0, level.height - 1 do
+    for i = level.x, level.x + level.width - 1 do
+        for j = level.y, level.y + level.height - 1 do
             local t = types[mget(i, j)]
             if t and (not level_checkpoint or t != player) then
                 local new = t:new(i * 8, j * 8)
