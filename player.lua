@@ -130,25 +130,24 @@ function player:update()
         self.t_jump_grace = max(self.t_jump_grace - 1)
     end
 
-    -- running 
-    local accel = 0.1
-    if on_ground then
-        accel = 0.45
-    elseif input_x != 0 then
-        accel = 0.35
-    end
-
-    if (self.springboard) accel *= 0.5
-
-    self.speed_x = approach(self.speed_x, 2.1 * input_x , accel)
-
-    -- facing 
-    if input_x != 0 then
-        self.facing = input_x
-    end
-
     if self.state == 0 then
         -- normal state
+
+        -- running
+        local accel = 0.1
+        if on_ground then
+            accel = 0.45
+        elseif input_x != 0 then
+            accel = 0.35
+        end
+
+
+        self.speed_x = approach(self.speed_x, 2.1 * input_x , accel)
+
+        -- facing 
+        if input_x != 0 then
+            self.facing = input_x
+        end
 
         -- gravity
         if not on_ground then
@@ -174,20 +173,13 @@ function player:update()
         end
     elseif self.state == 1 then
          -- springboard bounce state 
-
-         if not self:overlaps(self.springboard, 0, g_dir) then
-            self:leave_springboard()
-        else
-            self.t_bounce += 1
-            if self.t_bounce < 6 then
-                local at_y = approach(self.y, self.springboard.y + 6 * g_dir, 1.1)
-                self:move_y(at_y - self.y)
-                if self.t_bounce == 4 then 
-                    self.springboard.spr = 43
-                end
-            elseif self.t_bounce == 8 then
-                self:spring()
-            end
+        self.t_bounce += 1
+        self.springboard.spr = 43
+        if self.t_bounce < 6 then
+            local at_y = approach(self.y, self.springboard.y - 2 * g_dir, 1.5)
+            self:move_y(at_y - self.y)
+        elseif self.t_bounce == 8 then
+            self:spring()
         end
     elseif self.state == 2 then
         self.delay -= 1
@@ -256,7 +248,7 @@ function player:update()
 
     -- bounds
     if self.x + self.hit_x < 0 then
-        self.x = self.hit_x
+        self.x = -self.hit_x
         object.on_collide_x(self)
     elseif self.x + 1 > level.width * 8 then
         self.state = 2
@@ -272,7 +264,7 @@ function player:update()
     camera(camera_x, camera_y)
 
     -- animation
-    if not on_ground then
+    if not on_ground and self.state != 1 then
         self.spr = 2
     elseif input_x != 0 then
         self.spr += 0.25
