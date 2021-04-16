@@ -39,6 +39,7 @@ function goto_level(index)
     level_checkpoint = nil
     c_create_stars = cocreate(create_stars)
     level_load = 30
+    start_song = true
 end
 
 c_create_stars = nil

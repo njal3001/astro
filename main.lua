@@ -1,5 +1,6 @@
 level_index = 0
 level_load = 0
+start_song = false
 
 function _init()
     stars = {}
@@ -18,6 +19,10 @@ function _update()
         level_load -= 1
         if level_load == 0 then
             restart_level()
+            if start_song then
+                music(0)
+                start_song = false
+            end
         end
     else
         update_input()
