@@ -84,6 +84,8 @@ function player:spring()
     self.t_jump_grace = 0
     self.springboard:spring(self)
     self:leave_springboard()
+    if input_jump then sfx(24)
+    else sfx(25) end
 end
 
 function player:leave_springboard()

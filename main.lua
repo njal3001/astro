@@ -8,7 +8,10 @@ function _init()
 end
 
 function _update()
-    printh(stat(7))
+    if stat(7) != 30 then
+        printh("frames dropped")
+    end
+
     if c_create_stars and costatus(c_create_stars) != "dead" then
         coresume(c_create_stars)
     else
