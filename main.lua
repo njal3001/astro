@@ -4,7 +4,7 @@ start_song = false
 
 function _init()
     stars = {}
-    goto_level(1)
+    goto_level(3)
 end
 
 function _update()
@@ -29,6 +29,7 @@ function _update()
         end
     else
         update_input()
+        
         for obj in all(objects) do
             if obj.freeze > 0 then
                 obj.freeze -= 1
@@ -52,12 +53,7 @@ function _draw()
     else
         -- draw stars
         for s in all(stars) do
-            if s.o > 0 then
-                s.o -= 1
-            end
-            if s.o == 0 then
-                s.f -= 1
-            end
+            s.f -= 1
             if s.f == 0 then
                 s.f = flr(rnd() * 340) + 30
             else
@@ -65,12 +61,19 @@ function _draw()
             end
         end
 
-        map(0, 0, 0, 0, 128, 32, 2)
+        map(0, 0, 0, 0, 128, 64, 2)
+
+        for obj in all(objects) do
+            if obj.base == spike_h or obj.base == spike_v then 
+                obj:draw()
+            end
+        end
+
         local p
         for obj in all(objects) do
             if obj.base == player then 
                 p = obj
-            else
+            elseif obj.base != spike_h and obj.base != spike_v then
                 obj:draw()
             end
         end

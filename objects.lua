@@ -144,6 +144,10 @@ mover.col_solid = false
 mover.hit_w = 24
 mover.hit_h = 4
 
+function mover:init()
+    self.last = self.x
+end
+
 function mover:solid_check(o, ox, oy)
     return o.base == player and 
         ((g_dir == 1 and o.y + o.hit_y + o.hit_h - 1 - o.speed_y < self.y) or
@@ -159,11 +163,14 @@ end
 
 function mover:update()
     if self.state == 1 then
-        self.speed_x = approach(self.speed_x, 1, 0.2)
+        self.speed_x = approach(self.speed_x, 1.3, 0.2)
         self:move_x(self.speed_x)
         if self.player then
-            self.player:move_x(self.speed_x)
+            self.player:move_x(self.x - self.last)
+            printh(self.x - self.last)
+            update_camera(self.player.x)
         end
+        self.last = self.x
     end
 end
 

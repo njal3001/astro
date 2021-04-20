@@ -51,6 +51,7 @@ function object:move_y(amount)
     local pixel_amount = flr(self.remainder_y + 0.5)
     self.remainder_y -= pixel_amount
 
+
     if self.col_solid then
         while pixel_amount != 0 do
             local step = sgn(pixel_amount)

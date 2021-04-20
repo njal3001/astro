@@ -108,9 +108,7 @@ function player:die()
 end
 
 function player:init()
-    --camera
-    update_camera_target(self.x, self.y)
-    snap_camera()
+    update_camera(self.x)
 end
 
 --[[
@@ -226,9 +224,11 @@ function player:update()
         elseif o.base == mover then
             -- mover
             if self:overlaps(o, 0, g_dir) then
-                o.state = 1
-                self.mover = o
-                o.player = self
+                if self.speed_y == 0 then
+                    o.state = 1
+                    self.mover = o
+                    o.player = self
+                end
             elseif self.mover == o then
                 self.mover.player = nil
                 self.mover = nil
@@ -241,8 +241,8 @@ function player:update()
     end
 
     -- death
-    if (self.y + self.hit_y - 16 > (level.height + level.y) * 8 and g_dir == 1) or 
-            (self.y + self.hit_y + self.hit_h - 1 + 16 < level.y * 8 and g_dir == -1) or
+    if (self.y + self.hit_y - 16 > level_top() * 8 and g_dir == 1) or 
+            (self.y + self.hit_y + self.hit_h - 1 + 16 < level_bottom() * 8 and g_dir == -1) or
                 self:hazard_check() then
         self:die()
         return
@@ -252,7 +252,7 @@ function player:update()
     if self.x + self.hit_x < 0 then
         self.x = -self.hit_x
         object.on_collide_x(self)
-    elseif self.x + 1 > level.width * 8 then
+    elseif self.x + 1 > 1024 then
         self.state = 2
         self.delay = 5
     end
@@ -260,10 +260,7 @@ function player:update()
     self.was_on_ground = on_ground
          
     -- camera
-    update_camera_target(self.x, self.y)
-    camera_x = approach(camera_x, camera_target_x, 5)
-    camera_y = approach(camera_y, camera_target_y, 5)
-    camera(camera_x, camera_y)
+    update_camera(self.x)
 
     -- animation
     if not on_ground and self.state != 1 then

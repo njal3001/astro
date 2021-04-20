@@ -1,41 +1,25 @@
-levels = {
-    {
-        x = 0, 
-        y = 0,
-        width = 128,
-        height = 16
-    },
-    {
-        x = 0, 
-        y = 16,
-        width = 128,
-        height = 16
-    }
-}
-
 function level_clamp_x(x)
-    return mid(level.x, x, level.x + level.width - 1)
+    return mid(0, x, 127)
 end
 
 function level_clamp_y(y)
-    return mid(level.y, y, level.y + level.height - 1)
+    return mid(level_bottom(), y, level_top())
 end
 
--- temporary
-function update_camera_target(px, py)
-    camera_target_x = max(min(128 * 7, px - 56))
-    camera_target_y = level.y * 8
+function level_bottom()
+    return (level_index - 1) * 16
 end
 
-function snap_camera()
-    camera_x = camera_target_x
-    camera_y = camera_target_y 
-    camera(camera_x, camera_y)
+function level_top()
+    return level_bottom() + 15
+end
+
+function update_camera(x)
+    camera(max(min(128 * 7, x - 56)), level_bottom() * 8)
 end
 
 function goto_level(index)
     level_index = index
-    level = levels[index]
     level_checkpoint = nil
     c_create_stars = cocreate(create_stars)
     level_load = 30
@@ -78,11 +62,10 @@ end
 
 function create_star()
     return {
-        x = level.x * 8 + rnd() * 1023,
-        y = level.y * 8 + rnd() * 127,
+        x = rnd() * 1023,
+        y = level_bottom() * 8 + rnd() * 127,
         r = rnd(1.3),
-        f = flr(rnd() * 340) + 30,
-        o = flr(rnd() * 60)
+        f = flr(rnd() * 340) + 30
     }
 end
 
@@ -95,8 +78,8 @@ function restart_level()
     g_dir = 1
     objects = {}
 
-    for i = level.x, level.x + level.width - 1 do
-        for j = level.y, level.y + level.height - 1 do
+    for i = 0, 127 do
+        for j = level_bottom(), level_top() do
             local t = types[mget(i, j)]
             if t and (not level_checkpoint or t != player) then
                 local new = t:new(i * 8, j * 8)
