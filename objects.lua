@@ -124,8 +124,8 @@ function smasher:update()
     self:move_y(self.speed_y)
 
     self.destroyed = 
-    (self.y > (level.height + level.y) * 8 + 24 and g_dir == 1) or 
-    (self.y < level.y * 8 - 32 and g_dir == -1)
+    (self.y > level_top() * 8 + 24 and g_dir == 1) or 
+    (self.y < level_bottom() * 8 - 32 and g_dir == -1)
    end
 end
 
@@ -142,7 +142,7 @@ mover.solid = true
 mover.state = 0
 mover.col_solid = false
 mover.hit_w = 24
-mover.hit_h = 4
+mover.hit_h = 5
 
 function mover:init()
     self.last = self.x
@@ -159,6 +159,7 @@ end
     states:
         0 - still
         1 - moving
+        2 - stopped
 ]]
 
 function mover:update()
@@ -167,8 +168,7 @@ function mover:update()
         self:move_x(self.speed_x)
         if self.player then
             self.player:move_x(self.x - self.last)
-            printh(self.x - self.last)
-            update_camera(self.player.x)
+            self.player:update_camera()
         end
         self.last = self.x
     end
@@ -176,6 +176,17 @@ end
 
 function mover:draw()
     spr(self.spr, self.x, self.y, 3, 1)
+end
+
+stopper = new_type(63)
+
+function stopper:update()
+    for o in all(objects) do
+        if o.base == mover and o.state != 2 and self:overlaps(o, 15, 0) then
+            o.state = 2
+            o.speed_x = 0
+        end
+    end 
 end
 
 checkpoint = new_type(61)

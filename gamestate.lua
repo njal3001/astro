@@ -14,8 +14,13 @@ function level_top()
     return level_bottom() + 15
 end
 
-function update_camera(x)
-    camera(max(min(128 * 7, x - 56)), level_bottom() * 8)
+function set_camera_target(x)
+    camera_target_x = max(min(128 * 7, x - 56))
+end
+
+function snap_camera()
+    camera_x = camera_target_x
+    camera(camera_x, level_bottom() * 8)
 end
 
 function goto_level(index)
@@ -71,11 +76,9 @@ end
 
 
 function restart_level()
-    camera_x = 0
-    camera_y = 0
-    camera_target_x = 0
-    camera_target_y = 0
     g_dir = 1
+    camera_x = 0
+    camera_target_x = 0
     objects = {}
 
     for i = 0, 127 do

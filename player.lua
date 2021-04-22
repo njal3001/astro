@@ -107,8 +107,17 @@ function player:die()
     level_load = 30
 end
 
+function player:update_camera()
+    if self.mover then
+        set_camera_target(self.mover.x + self.mover_land_x)
+    else
+        set_camera_target(self.x)
+    end
+end
+
 function player:init()
-    update_camera(self.x)
+    set_camera_target(self.x)
+    snap_camera()
 end
 
 --[[
@@ -223,10 +232,11 @@ function player:update()
             return
         elseif o.base == mover then
             -- mover
-            if self:overlaps(o, 0, g_dir) then
-                if self.speed_y == 0 then
+            if o.state != 2 and self:overlaps(o, 0, g_dir) then
+                if self.speed_y == 0 and self.mover != o then
                     o.state = 1
                     self.mover = o
+                    self.mover_land_x = self.x - self.mover.x
                     o.player = self
                 end
             elseif self.mover == o then
@@ -260,7 +270,7 @@ function player:update()
     self.was_on_ground = on_ground
          
     -- camera
-    update_camera(self.x)
+    self:update_camera()
 
     -- animation
     if not on_ground and self.state != 1 then

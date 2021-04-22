@@ -8,7 +8,7 @@ function _init()
 end
 
 function _update()
-    if stat(7) != 30 then
+    if stat(7) != 30 and level_load == 0 then
         printh("frames dropped")
     end
 
@@ -29,7 +29,6 @@ function _update()
         end
     else
         update_input()
-        
         for obj in all(objects) do
             if obj.freeze > 0 then
                 obj.freeze -= 1
@@ -41,6 +40,9 @@ function _update()
                 del(objects, obj)
             end
         end
+
+        camera_x = approach(camera_x, camera_target_x, 3)
+        camera(camera_x, level_bottom() * 8)
     end
 end
 
@@ -77,7 +79,7 @@ function _draw()
                 obj:draw()
             end
         end
-        if (p) p:draw() 
+        if (p) p:draw()
     end
 end
 
