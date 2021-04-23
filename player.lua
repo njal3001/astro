@@ -99,20 +99,13 @@ function player:switch()
     g_dir *= -1
     self.hit_y = max(0, g_dir * 2)
     self.can_switch = false
+    self.t_jump_grace = 0
     sfx(9)
 end
 
 function player:die()
     sfx(12)
     level_load = 30
-end
-
-function player:update_camera()
-    if self.mover then
-        set_camera_target(self.mover.x + self.mover_land_x)
-    else
-        set_camera_target(self.x)
-    end
 end
 
 function player:init()
@@ -232,11 +225,10 @@ function player:update()
             return
         elseif o.base == mover then
             -- mover
-            if o.state != 2 and self:overlaps(o, 0, g_dir) then
+            if self:overlaps(o, 0, g_dir) then
                 if self.speed_y == 0 and self.mover != o then
                     o.state = 1
                     self.mover = o
-                    self.mover_land_x = self.x - self.mover.x
                     o.player = self
                 end
             elseif self.mover == o then
@@ -270,7 +262,7 @@ function player:update()
     self.was_on_ground = on_ground
          
     -- camera
-    self:update_camera()
+    set_camera_target(self.x)
 
     -- animation
     if not on_ground and self.state != 1 then

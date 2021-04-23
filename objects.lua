@@ -163,12 +163,24 @@ end
 ]]
 
 function mover:update()
-    if self.state == 1 then
-        self.speed_x = approach(self.speed_x, 1.3, 0.2)
+    if self.state != 0 then
+        local target
+        local accel
+        if self.state == 1 then 
+            target = 1
+            accel = 0.2
+        else 
+            target = 0 
+            accel = 0.05
+        end
+        self.speed_x = approach(self.speed_x, target, accel)
+    end  
+
+    if self.speed_x != 0 then
         self:move_x(self.speed_x)
         if self.player then
             self.player:move_x(self.x - self.last)
-            self.player:update_camera()
+            set_camera_target(self.player.x)
         end
         self.last = self.x
     end
@@ -184,10 +196,11 @@ function stopper:update()
     for o in all(objects) do
         if o.base == mover and o.state != 2 and self:overlaps(o, 15, 0) then
             o.state = 2
-            o.speed_x = 0
         end
     end 
 end
+
+function stopper:draw() end
 
 checkpoint = new_type(61)
 

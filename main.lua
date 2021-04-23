@@ -4,7 +4,7 @@ start_song = false
 
 function _init()
     stars = {}
-    goto_level(3)
+    goto_level(1)
 end
 
 function _update()
@@ -29,6 +29,7 @@ function _update()
         end
     else
         update_input()
+
         for obj in all(objects) do
             if obj.freeze > 0 then
                 obj.freeze -= 1
