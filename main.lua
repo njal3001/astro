@@ -4,7 +4,7 @@ start_song = false
 
 function _init()
     stars = {}
-    goto_level(1)
+    goto_level(3)
 end
 
 function _update()
