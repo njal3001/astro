@@ -187,8 +187,10 @@ function player:update()
         self.delay -= 1
         if self.delay == 0 then
             goto_level(level_index + 1)
-            music(-1)
-            sfx(14)
+            if level_index != 4 then
+                music(-1)
+                sfx(14)
+            end
         end
         return
     end

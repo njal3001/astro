@@ -25,10 +25,15 @@ end
 
 function goto_level(index)
     level_index = index
-    level_checkpoint = nil
-    c_create_stars = cocreate(create_stars)
-    level_load = 30
-    start_song = true
+    if level_index == 4 then
+        music(9)
+        create_stars()
+    else
+        level_checkpoint = nil
+        c_create_stars = cocreate(create_stars)
+        level_load = 30
+        start_song = true
+    end
 end
 
 c_create_stars = nil
@@ -38,7 +43,8 @@ function create_stars()
 
     add(stars, create_star())
 
-    for i = 0, 198 do
+    local n = level_index == 4 and 30 or 198
+    for i = 0, n do
         local max_sdist = 0
         local max_sample
         for j = 0, 9 do
@@ -61,14 +67,17 @@ function create_stars()
 
         if (max_sample) add(stars, max_sample)
         
-        if (i % 10 == 0) yield()
+        if (i % 10 == 0 and level_index != 4) yield()
     end
 end
 
 function create_star()
+    local final = level_index == 4
+    local x = rnd() * (final and 127 or 1023)
+    local y = rnd() * 127 + (final and 0 or level_bottom() * 8)
     return {
-        x = rnd() * 1023,
-        y = level_bottom() * 8 + rnd() * 127,
+        x = x,
+        y = y,
         r = rnd(1.3),
         f = flr(rnd() * 340) + 30
     }

@@ -4,13 +4,15 @@ start_song = false
 
 function _init()
     stars = {}
-    goto_level(3)
+    goto_level(1)
 end
 
 function _update()
     if stat(7) != 30 and level_load == 0 then
         printh("frames dropped")
     end
+
+    if (level_index == 4) return 
 
     if c_create_stars and costatus(c_create_stars) != "dead" then
         coresume(c_create_stars)
@@ -62,6 +64,13 @@ function _draw()
             else
                 circfill(s.x, s.y, s.r, 7)
             end
+        end
+
+        if level_index == 4 then
+            camera(0, 0)
+            print("congratulations", 36, 50, 9)
+            print("you won!", 50, 60, 9  )
+            return
         end
 
         map(0, 0, 0, 0, 128, 64, 2)
